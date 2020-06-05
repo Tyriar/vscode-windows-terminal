@@ -11,8 +11,10 @@ import { IWTProfile, IWTInstallation } from './interfaces';
 let installation: IWTInstallation;
 
 export async function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfile', e => openWithProfile(e)));
-  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolder', () => openActiveFilesFolder()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.open', () => openWithDefaultProfile()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfile', () => openWithProfile()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfileExplorer', e => openWithProfile(e)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolder', () => openActiveFilesFolderWithDefaultProfile()));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolderWithProfile', e => openActiveFilesFolderWithProfile()));
 
   // TODO: React to changes
@@ -52,6 +54,10 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
   spawn(installation.executablePath, args, { detached: true });
 }
 
+async function openWithDefaultProfile() {
+  openWindowsTerminal(await getDefaultProfile(installation));
+}
+
 async function openWithProfile(uri?: vscode.Uri) {
   try {
     const profile = await chooseProfile(installation);
@@ -64,7 +70,7 @@ async function openWithProfile(uri?: vscode.Uri) {
   }
 }
 
-async function openActiveFilesFolder(profile?: IWTProfile) {
+async function openActiveFilesFolderWithDefaultProfile(profile?: IWTProfile) {
   const uri = vscode.window.activeTextEditor?.document.uri;
   if (!uri) {
     return vscode.window.showErrorMessage(`There is no active file to open`);
@@ -81,7 +87,7 @@ async function openActiveFilesFolderWithProfile() {
     if (!profile) {
       return;
     }
-    await openActiveFilesFolder(profile);
+    await openActiveFilesFolderWithDefaultProfile(profile);
   } catch (ex) {
     return vscode.window.showErrorMessage(`Could not launch Windows Terminal:\n\n${ex.message}`);
   }

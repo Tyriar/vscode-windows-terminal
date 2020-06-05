@@ -28,7 +28,9 @@
   "activationEvents": [
     "onCommand:windows-terminal.openActiveFilesFolder",
     "onCommand:windows-terminal.openActiveFilesFolderWithProfile",
-    "onCommand:windows-terminal.openWithProfile"
+    "onCommand:windows-terminal.open",
+    "onCommand:windows-terminal.openWithProfile",
+    "onCommand:windows-terminal.openWithProfileExplorer"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -64,15 +66,31 @@
         "category": "Windows Terminal"
       },
       {
+        "command": "windows-terminal.open",
+        "title": "Open",
+        "category": "Windows Terminal"
+      },
+      {
         "command": "windows-terminal.openWithProfile",
+        "title": "Open With Profile",
+        "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.openWithProfileExplorer",
         "title": "Open in Windows Terminal",
         "category": "Windows Terminal"
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "windows-terminal.openWithProfileExplorer",
+          "when": "false"
+        }
+      ],
       "explorer/context": [
         {
-          "command": "windows-terminal.openWithProfile",
+          "command": "windows-terminal.openWithProfileExplorer",
           "group": "navigation@31"
         }
       ]
