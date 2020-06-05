@@ -26,7 +26,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-windows-terminal.openWithProfile"
+    "onCommand:windows-terminal.openActiveFilesFolder",
+    "onCommand:windows-terminal.openActiveFilesFolderWithProfile",
+    "onCommand:windows-terminal.openWithProfile"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -52,7 +54,17 @@
     },
     "commands": [
       {
-        "command": "vscode-windows-terminal.openWithProfile",
+        "command": "windows-terminal.openActiveFilesFolder",
+        "title": "Open Active File's Folder",
+        "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.openActiveFilesFolderWithProfile",
+        "title": "Open Active File's Folder With Profile",
+        "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.openWithProfile",
         "title": "Open in Windows Terminal",
         "category": "Windows Terminal"
       }
@@ -60,7 +72,7 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "vscode-windows-terminal.openWithProfile",
+          "command": "windows-terminal.openWithProfile",
           "group": "navigation@31"
         }
       ]

@@ -6,53 +6,98 @@ import { stat } from 'fs';
 import { promisify } from 'util';
 import { dirname } from 'path';
 import { detectInstallation } from './installation';
-import { IWTProfile } from './interfaces';
+import { IWTProfile, IWTInstallation } from './interfaces';
 
-export function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(vscode.commands.registerCommand('vscode-windows-terminal.openWithProfile', e => openWithProfile(e)));
+let installation: IWTInstallation;
+
+export async function activate(context: vscode.ExtensionContext) {
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfile', e => openWithProfile(e)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolder', () => openActiveFilesFolder()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolderWithProfile', e => openActiveFilesFolderWithProfile()));
+
+  // TODO: React to changes
+  installation = await detectInstallation();
 }
 
 export function deactivate() { }
 
+async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
+  const args = ['-p', profile.name];
+  if (uri) {
+    let cwd = uri.fsPath;
+    if (uri.authority) {
+      if (uri.authority.startsWith('wsl+')) {
+        const distro = uri.authority.split('+')[1];
+        cwd = await convertWslPathToWindows(uri.path, distro);
+      } else {
+        throw new Error(`Unsupported authority "${uri.authority}`);
+      }
+    }
+    if (await isFile(cwd)) {
+      cwd = dirname(cwd);
+    }
+    args.push('-d', cwd);
+  }
+  spawn(installation.executablePath, args, { detached: true });
+}
+
 async function openWithProfile(uri?: vscode.Uri) {
   try {
-    const installation = await detectInstallation();
-    const settings = await getSettingsContents(installation.settingsPath);
-    const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = settings.profiles.list.map(profile => {
-      const isDefault = profile.guid === settings.defaultProfile;
-      return {
-        label: profile.name,
-        description: (profile.commandline || profile.source || '') + (isDefault ? ' (Default)' : ''),
-        profile
-      };
-    });
-
-    const item = await vscode.window.showQuickPick(quickPickItems);
-    if (!item) {
+    const profile = await chooseProfile(installation);
+    if (!profile) {
       return;
     }
-
-    const args = ['-p', item.profile.name];
-    if (uri) {
-      let cwd = uri.fsPath;
-      if (uri.authority) {
-        if (uri.authority.startsWith('wsl+')) {
-          const distro = uri.authority.split('+')[1];
-          cwd = await convertWslPathToWindows(uri.path, distro);
-        } else {
-          throw new Error(`Unsupported authority "${uri.authority}`);
-        }
-      }
-      if (await isFile(cwd)) {
-        cwd = dirname(cwd);
-      }
-      args.push('-d', cwd);
-    }
-
-    spawn(installation.executablePath, args, { detached: true });
+    await openWindowsTerminal(profile, uri);
   } catch (ex) {
     return vscode.window.showErrorMessage(`Could not launch Windows Terminal:\n\n${ex.message}`);
   }
+}
+
+async function openActiveFilesFolder(profile?: IWTProfile) {
+  const uri = vscode.window.activeTextEditor?.document.uri;
+  if (!uri) {
+    return vscode.window.showErrorMessage(`There is no active file to open`);
+  }
+  if (!profile) {
+    profile = await getDefaultProfile(installation);
+  }
+  openWindowsTerminal(profile, uri);
+}
+
+async function openActiveFilesFolderWithProfile() {
+  try {
+    const profile = await chooseProfile(installation);
+    if (!profile) {
+      return;
+    }
+    await openActiveFilesFolder(profile);
+  } catch (ex) {
+    return vscode.window.showErrorMessage(`Could not launch Windows Terminal:\n\n${ex.message}`);
+  }
+}
+
+async function getDefaultProfile(installation: IWTInstallation): Promise<IWTProfile> {
+  const settings = await getSettingsContents(installation.settingsPath);
+  const defaultProfile = settings.profiles.list.find(p => p.guid === settings.defaultProfile);
+  if (!defaultProfile) {
+    throw new Error('Could not detect default profile');
+  }
+  return defaultProfile;
+}
+
+async function chooseProfile(installation: IWTInstallation): Promise<IWTProfile | undefined> {
+  const settings = await getSettingsContents(installation.settingsPath);
+  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = settings.profiles.list.map(profile => {
+    const isDefault = profile.guid === settings.defaultProfile;
+    return {
+      label: profile.name,
+      description: (profile.commandline || profile.source || '') + (isDefault ? ' (Default)' : ''),
+      profile
+    };
+  });
+
+  const item = await vscode.window.showQuickPick(quickPickItems);
+  return item?.profile;
 }
 
 async function isFile(path: string): Promise<boolean> {
