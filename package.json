@@ -1,5 +1,5 @@
 {
-	"name": "vscode-windows-terminal",
+	"name": "windows-terminal",
 	"displayName": "Windows Terminal Integration",
 	"description": "VS Code integration with Windows Terminal",
 	"version": "0.1.0",
