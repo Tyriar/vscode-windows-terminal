@@ -12,7 +12,15 @@
 	],
 	"engines": {
 		"vscode": "^1.45.0"
-	},
+  },
+  "bugs": {
+    "url": "https://github.com/Tyriar/vscode-windows-terminal/issues"
+  },
+  "homepage": "https://github.com/Tyriar/vscode-windows-terminal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tyriar/vscode-windows-terminal"
+  },
 	"categories": [
 		"Other"
 	],
