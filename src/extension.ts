@@ -17,8 +17,12 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolder', () => openActiveFilesFolderWithDefaultProfile()));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolderWithProfile', e => openActiveFilesFolderWithProfile()));
 
-  // TODO: React to changes
   installation = await detectInstallation();
+  vscode.workspace.onDidChangeConfiguration(async e => {
+    if (e.affectsConfiguration('windowsTerminal')) {
+      installation = await detectInstallation();
+    }
+  });
 }
 
 export function deactivate() { }
