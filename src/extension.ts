@@ -35,7 +35,7 @@ async function openWithProfile(uri?: vscode.Uri) {
       if (uri.authority) {
         if (uri.authority.startsWith('wsl+')) {
           const distro = uri.authority.split('+')[1];
-          cwd = await convertWslPathToWindows(uri.path!, distro);
+          cwd = await convertWslPathToWindows(uri.path, distro);
         } else {
           throw new Error(`Unsupported authority "${uri.authority}`);
         }
