@@ -2,6 +2,9 @@ import * as vscode from 'vscode';
 import { getWTSettings, IWTProfile } from './settings';
 import { spawn } from 'child_process';
 import { toWindowsPath } from './wsl';
+import { stat } from 'fs';
+import { promisify } from 'util';
+import { dirname } from 'path';
 
 interface ILaunchWithProfileArgs {
 	authority?: string;
@@ -46,6 +49,9 @@ async function openWithProfile(e?: ILaunchWithProfileArgs) {
 					throw new Error(`Unsupported authority "${e.authority}`);
 				}
 			}
+      if (await isFile(cwd)) {
+        cwd = dirname(cwd);
+      }
 			args.push('-d', cwd);
 		}
 
@@ -55,3 +61,7 @@ async function openWithProfile(e?: ILaunchWithProfileArgs) {
 	}
 }
 
+async function isFile(path: string): Promise<boolean> {
+  const result = await promisify(stat)(path);
+  return !result.isDirectory();
+}
