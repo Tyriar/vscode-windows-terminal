@@ -1,6 +1,6 @@
 import * as jsoncParser from 'jsonc-parser';
-import { promisify } from "util";
-import { readFile, exists } from "fs";
+import { promisify } from 'util';
+import { readFile, exists } from 'fs';
 import { IWTSettings } from './interfaces';
 
 export async function getSettingsContents(settingsPath: string): Promise<IWTSettings> {

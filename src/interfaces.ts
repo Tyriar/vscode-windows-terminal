@@ -9,7 +9,7 @@ export interface IWTSettings {
   defaultProfile: string;
   profiles: {
     list: IWTProfile[];
-  }
+  };
 }
 
 export interface IWTProfile {

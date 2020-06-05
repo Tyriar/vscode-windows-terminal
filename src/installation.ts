@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { join } from "path";
+import { join } from 'path';
 import { Channel, IWTInstallation } from './interfaces';
-import { promisify } from "util";
-import { exists } from "fs";
+import { promisify } from 'util';
+import { exists } from 'fs';
 
 export function getExecutablePath(channel: Channel): string {
   return join(`${getLocalAppDataDir()}/Microsoft/WindowsApps/${getChannelAppId(channel)}/wt.exe`);
