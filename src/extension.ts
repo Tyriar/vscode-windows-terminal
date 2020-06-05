@@ -23,6 +23,16 @@ export function deactivate() { }
 
 async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
   const args = ['-p', profile.name];
+
+  // If there is no URI, set it to the first workspace folder
+  if (!uri) {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders) {
+      uri = workspaceFolders[0]?.uri;
+    }
+  }
+
+  // If there is a URI, convert it from WSL if required and get the dirname
   if (uri) {
     let cwd = uri.fsPath;
     if (uri.authority) {
@@ -38,6 +48,7 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
     }
     args.push('-d', cwd);
   }
+
   spawn(installation.executablePath, args, { detached: true });
 }
 
