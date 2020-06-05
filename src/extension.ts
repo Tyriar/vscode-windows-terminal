@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
-import { getWTSettings, IWTProfile } from './settings';
+import { getSettingsContents } from './settings';
 import { spawn } from 'child_process';
 import { convertWslPathToWindows } from './wsl';
 import { stat } from 'fs';
 import { promisify } from 'util';
 import { dirname } from 'path';
+import { detectInstallation } from './installation';
+import { IWTProfile } from './interfaces';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('vscode-windows-terminal.openWithProfile', e => openWithProfile(e)));
@@ -14,7 +16,8 @@ export function deactivate() { }
 
 async function openWithProfile(uri?: vscode.Uri) {
   try {
-    const settings = await getWTSettings();
+    const installation = await detectInstallation();
+    const settings = await getSettingsContents(installation.settingsPath);
     const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = settings.profiles.list.map(profile => {
       const isDefault = profile.guid === settings.defaultProfile;
       return {
@@ -46,7 +49,7 @@ async function openWithProfile(uri?: vscode.Uri) {
       args.push('-d', cwd);
     }
 
-    spawn('wt.exe', args, { detached: true });
+    spawn(installation.executablePath, args, { detached: true });
   } catch (ex) {
     return vscode.window.showErrorMessage(`Could not launch Windows Terminal:\n\n${ex.message}`);
   }

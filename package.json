@@ -30,6 +30,26 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Windows Terminal",
+      "properties": {
+        "windowsTerminal.channel": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "stable",
+            "preview"
+          ],
+          "enumDescriptions": [
+            "Use the stable version of Windows Terminal if it's available, otherwise fallback to the preview version",
+            "Use the stable version of Windows Terminal",
+            "Use the preview version of Windows Terminal"
+          ]
+        }
+      }
+    },
 		"commands": [
 			{
 				"command": "vscode-windows-terminal.openWithProfile",

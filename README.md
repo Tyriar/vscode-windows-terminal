@@ -12,4 +12,10 @@ The context menu also works in [WSL remotes](https://marketplace.visualstudio.co
 
 ## Requirements
 
-- [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab)
+- [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701) or [Windows Terminal Preview](https://www.microsoft.com/en-us/p/windows-terminal-preview/9n8g5rfz9xk3)
+
+## Settings
+
+| Key | Description |
+|---|---|
+| `windowsTerminal.channel` | Whether to the stable or the preview version of Windows Terminal |
