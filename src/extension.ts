@@ -108,14 +108,22 @@ async function getDefaultProfile(installation: IWTInstallation): Promise<IWTProf
 
 async function chooseProfile(installation: IWTInstallation): Promise<IWTProfile | undefined> {
   const settings = await getSettingsContents(installation.settingsPath);
-  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = settings.profiles.list.map(profile => {
+  let defaultIndex = -1;
+  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = settings.profiles.list.map((profile, i) => {
     const isDefault = profile.guid === settings.defaultProfile;
+    if (isDefault) {
+      defaultIndex = i;
+    }
     return {
       label: profile.name,
       description: (profile.commandline || profile.source || '') + (isDefault ? ' (Default)' : ''),
       profile
     };
   });
+  if (defaultIndex !== -1) {
+    const defaultItem = quickPickItems.splice(defaultIndex, 1)[0];
+    quickPickItems.unshift(defaultItem);
+  }
 
   const item = await vscode.window.showQuickPick(quickPickItems);
   return item?.profile;
