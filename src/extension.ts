@@ -6,7 +6,7 @@ import { stat } from 'fs';
 import { promisify } from 'util';
 import { dirname } from 'path';
 import { detectInstallation } from './installation';
-import { IWTProfile, IWTInstallation } from './interfaces';
+import { IWTProfile, IWTInstallation, IWTSettings } from './interfaces';
 
 let installation: IWTInstallation;
 
@@ -97,9 +97,17 @@ async function openActiveFilesFolderWithProfile() {
   }
 }
 
+function getProfiles(settings: IWTSettings): IWTProfile[] {
+  // Windows Terminal versions have a different json schema for profiles:
+  // - some versions have the profile list set as settings.profiles.list
+  // - some versions have the profile list set as settings.profiles
+  return settings.profiles.list || settings.profiles;
+}
+
 async function getDefaultProfile(installation: IWTInstallation): Promise<IWTProfile> {
   const settings = await getSettingsContents(installation.settingsPath);
-  const defaultProfile = settings.profiles.list.find(p => p.guid === settings.defaultProfile);
+  const profiles = getProfiles(settings);
+  const defaultProfile = profiles.find(p => p.guid === settings.defaultProfile);
   if (!defaultProfile) {
     throw new Error('Could not detect default profile');
   }
@@ -108,8 +116,10 @@ async function getDefaultProfile(installation: IWTInstallation): Promise<IWTProf
 
 async function chooseProfile(installation: IWTInstallation): Promise<IWTProfile | undefined> {
   const settings = await getSettingsContents(installation.settingsPath);
+  const profiles = getProfiles(settings);
   let defaultIndex = -1;
-  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = settings.profiles.list.map((profile, i) => {
+
+  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = profiles.map((profile, i) => {
     const isDefault = profile.guid === settings.defaultProfile;
     if (isDefault) {
       defaultIndex = i;
