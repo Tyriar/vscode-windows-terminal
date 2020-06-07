@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.4.0
+
+- Change context menu item to "Open in Windows Terminal (Profile)" in preparation of improved built-in "Open in Terminal" labelling https://github.com/microsoft/vscode/issues/99542
+- Add new "Open in Windows Terminal" context menu item to open using the default profile
+- Add setting to allow hiding of each context menu item
+
 ## 0.3.0
 
 - Support the preview channel of Windows Terminal https://github.com/Tyriar/vscode-windows-terminal/issues/6
