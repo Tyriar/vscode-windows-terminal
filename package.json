@@ -56,7 +56,7 @@
         "windowsTerminal.explorer.showOpen": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to show the \"Open in Windows Terminal\" context menu item in the explorer."
+          "description": "Whether to show the \"Open in Windows Terminal\" context menu item in the explorer. This will automatically hide if the `terminal.external.windowsExec` setting is set to `'external'`."
         },
         "windowsTerminal.explorer.showOpenWithProfile": {
           "type": "boolean",
@@ -112,7 +112,7 @@
         {
           "command": "windows-terminal.openExplorer",
           "group": "navigation@31",
-          "when": "config.windowsTerminal.explorer.showOpen"
+          "when": "config.windowsTerminal.explorer.showOpen && config.terminal.explorerKind == 'integrated'"
         },
         {
           "command": "windows-terminal.openWithProfileExplorer",
