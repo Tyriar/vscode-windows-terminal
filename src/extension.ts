@@ -100,7 +100,8 @@ async function openActiveFilesFolderWithProfile() {
 
 async function getDefaultProfile(installation: IWTInstallation): Promise<IWTProfile> {
   const settings = await getSettingsContents(installation.settingsPath);
-  const defaultProfile = settings.profiles.list.find(p => p.guid === settings.defaultProfile);
+  const profileList = ('list' in settings.profiles ? settings.profiles.list : settings.profiles);
+  const defaultProfile = profileList.find(p => p.guid === settings.defaultProfile);
   if (!defaultProfile) {
     throw new Error('Could not detect default profile');
   }
@@ -110,7 +111,8 @@ async function getDefaultProfile(installation: IWTInstallation): Promise<IWTProf
 async function chooseProfile(installation: IWTInstallation): Promise<IWTProfile | undefined> {
   const settings = await getSettingsContents(installation.settingsPath);
   let defaultIndex = -1;
-  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = settings.profiles.list.map((profile, i) => {
+  const profileList = ('list' in settings.profiles ? settings.profiles.list : settings.profiles);
+  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = profileList.map((profile, i) => {
     const isDefault = profile.guid === settings.defaultProfile;
     if (isDefault) {
       defaultIndex = i;

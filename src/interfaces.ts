@@ -5,11 +5,15 @@ export interface IWTInstallation {
   settingsPath: string;
 }
 
+
+export interface IWTProfileList {
+  list: IWTProfile[];
+}
+
 export interface IWTSettings {
   defaultProfile: string;
-  profiles: {
-    list: IWTProfile[];
-  };
+  // The old format seems to be an array and was changes to allow shared config
+  profiles: IWTProfile[] | IWTProfileList;
 }
 
 export interface IWTProfile {
