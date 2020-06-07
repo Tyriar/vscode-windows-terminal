@@ -51,6 +51,11 @@
             "Use the stable version of Windows Terminal",
             "Use the preview version of Windows Terminal"
           ]
+        },
+        "windowsTerminal.showExplorerContextMenuItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to show the \"Open in Windows Terminal (Profile)\" context menu item in the explorer."
         }
       }
     },
@@ -77,7 +82,7 @@
       },
       {
         "command": "windows-terminal.openWithProfileExplorer",
-        "title": "Open in Windows Terminal",
+        "title": "Open in Windows Terminal (Profile)",
         "category": "Windows Terminal"
       }
     ],
@@ -91,7 +96,8 @@
       "explorer/context": [
         {
           "command": "windows-terminal.openWithProfileExplorer",
-          "group": "navigation@31"
+          "group": "navigation@31",
+          "when": "config.windowsTerminal.showExplorerContextMenuItem"
         }
       ]
     }
