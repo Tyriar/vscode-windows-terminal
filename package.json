@@ -112,12 +112,12 @@
         {
           "command": "windows-terminal.openExplorer",
           "group": "navigation@31",
-          "when": "config.windowsTerminal.explorer.showOpen && config.terminal.explorerKind == 'integrated'"
+          "when": "isWindows && config.windowsTerminal.explorer.showOpen && config.terminal.explorerKind == 'integrated'"
         },
         {
           "command": "windows-terminal.openWithProfileExplorer",
           "group": "navigation@32",
-          "when": "config.windowsTerminal.explorer.showOpenWithProfile"
+          "when": "isWindows && config.windowsTerminal.explorer.showOpenWithProfile"
         }
       ]
     }
