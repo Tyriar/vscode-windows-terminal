@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.5.0
+
+- Preliminary SSH Remote support
+  - Windows remotes don't use the folder path
+  - Non-Windows remotes are not tested
+
 ## 0.4.1
 
 - Hide Cloud Shell entry when a folder is being targeted

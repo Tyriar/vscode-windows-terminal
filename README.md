@@ -12,6 +12,10 @@ These context menus can each be hidden independently using settings.
 
 The context menu also works in [WSL remotes](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl), regardless of whether the terminal profile is WSL or not.
 
+**SSH Remote support**
+
+Opening the terminal when in a [SSH remote](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) workspace will ssh into the remote in Windows Terminal.
+
 **Several commands for launching WT**
 
 See the Feature Contributions tab for a full list of commands that can be setup with [custom keybindings](https://code.visualstudio.com/docs/getstarted/keybindings).
