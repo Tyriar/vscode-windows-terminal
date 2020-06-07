@@ -42,19 +42,31 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
 
   // If there is a URI, convert it from WSL if required and get the dirname
   if (uri) {
-    let cwd = uri.fsPath;
-    if (uri.authority) {
-      if (uri.authority.startsWith('wsl+')) {
-        const distro = uri.authority.split('+')[1];
-        cwd = await convertWslPathToWindows(uri.path, distro);
+    if (uri.authority.startsWith('ssh-remote+')) {
+      // Handle SSH remotes first
+      const host = uri.authority.split('+')[1];
+      const isWindows = !!uri.path.match(/^\/[a-z]:\//);
+      if (isWindows) {
+        // Changing paths on Windows seems tricky
+        args.push('ssh', host);
       } else {
-        throw new Error(`Unsupported authority "${uri.authority}`);
+        args.push('ssh', '-t', host, `cd ${uri.path}; exec \\$SHELL -l`);
       }
+    } else {
+      let cwd = uri.fsPath;
+      if (uri.authority) {
+        if (uri.authority.startsWith('wsl+')) {
+          const distro = uri.authority.split('+')[1];
+          cwd = await convertWslPathToWindows(uri.path, distro);
+        } else {
+          throw new Error(`Unsupported authority "${uri.authority}`);
+        }
+      }
+      if (await isFile(cwd)) {
+        cwd = dirname(cwd);
+      }
+      args.push('-d', cwd);
     }
-    if (await isFile(cwd)) {
-      cwd = dirname(cwd);
-    }
-    args.push('-d', cwd);
   }
 
   spawn(installation.executablePath, args, { detached: true });
