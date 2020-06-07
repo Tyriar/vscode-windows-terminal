@@ -100,8 +100,24 @@
     "menus": {
       "commandPalette": [
         {
+          "command": "windows-terminal.openActiveFilesFolder",
+          "when": "isWindows"
+        },
+        {
+          "command": "windows-terminal.openActiveFilesFolderWithProfile",
+          "when": "isWindows"
+        },
+        {
+          "command": "windows-terminal.open",
+          "when": "isWindows"
+        },
+        {
           "command": "windows-terminal.openExplorer",
           "when": "false"
+        },
+        {
+          "command": "windows-terminal.openWithProfile",
+          "when": "isWindows"
         },
         {
           "command": "windows-terminal.openWithProfileExplorer",
