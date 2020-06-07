@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.4.1
+
+- Hide Cloud Shell entry when a folder is being targeted
+- Support old profiles format https://github.com/Tyriar/vscode-windows-terminal/issues/7
+- Increased size of extension icon https://github.com/Tyriar/vscode-windows-terminal/issues/2
+
 ## 0.4.0
 
 - Change context menu item to "Open in Windows Terminal (Profile)" in preparation of improved built-in "Open in Terminal" labelling https://github.com/microsoft/vscode/issues/99542
