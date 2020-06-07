@@ -2,9 +2,11 @@
 
 **Explorer context menu**
 
-Open a particular Windows Terminal profile on a folder via the explorer's right click context menu.
+Open a particular Windows Terminal using the default profile or selecting a custom one on a folder via the explorer's right click context menu.
 
 ![Context menu](images/context-menu.png)
+
+These context menus can each be hidden independently using settings.
 
 **WSL Remote support**
 
@@ -18,8 +20,11 @@ See the Feature Contributions tab for a full list of commands that can be setup 
 
 - [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701) or [Windows Terminal Preview](https://www.microsoft.com/en-us/p/windows-terminal-preview/9n8g5rfz9xk3)
 
-## Settings
+## Tips
 
-| Key | Description |
-|---|---|
-| `windowsTerminal.channel` | Whether to the stable or the preview version of Windows Terminal |
+If you do not use the integrated terminal you can change the built-in "Open in Terminal" context menu in the Explorer to open Windows Terminal's default profile by using these settings:
+
+```json
+"terminal.explorerKind": "external",
+"terminal.external.windowsExec": "wt"
+```

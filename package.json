@@ -29,6 +29,7 @@
     "onCommand:windows-terminal.openActiveFilesFolder",
     "onCommand:windows-terminal.openActiveFilesFolderWithProfile",
     "onCommand:windows-terminal.open",
+    "onCommand:windows-terminal.openExplorer",
     "onCommand:windows-terminal.openWithProfile",
     "onCommand:windows-terminal.openWithProfileExplorer"
   ],
@@ -52,7 +53,12 @@
             "Use the preview version of Windows Terminal"
           ]
         },
-        "windowsTerminal.showExplorerContextMenuItem": {
+        "windowsTerminal.explorer.showOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to show the \"Open in Windows Terminal\" context menu item in the explorer."
+        },
+        "windowsTerminal.explorer.showOpenWithProfile": {
           "type": "boolean",
           "default": true,
           "description": "Whether to show the \"Open in Windows Terminal (Profile)\" context menu item in the explorer."
@@ -76,6 +82,11 @@
         "category": "Windows Terminal"
       },
       {
+        "command": "windows-terminal.openExplorer",
+        "title": "Open in Windows Terminal",
+        "category": "Windows Terminal"
+      },
+      {
         "command": "windows-terminal.openWithProfile",
         "title": "Open With Profile",
         "category": "Windows Terminal"
@@ -89,15 +100,24 @@
     "menus": {
       "commandPalette": [
         {
+          "command": "windows-terminal.openExplorer",
+          "when": "false"
+        },
+        {
           "command": "windows-terminal.openWithProfileExplorer",
           "when": "false"
         }
       ],
       "explorer/context": [
         {
-          "command": "windows-terminal.openWithProfileExplorer",
+          "command": "windows-terminal.openExplorer",
           "group": "navigation@31",
-          "when": "config.windowsTerminal.showExplorerContextMenuItem"
+          "when": "config.windowsTerminal.explorer.showOpen"
+        },
+        {
+          "command": "windows-terminal.openWithProfileExplorer",
+          "group": "navigation@32",
+          "when": "config.windowsTerminal.explorer.showOpenWithProfile"
         }
       ]
     }

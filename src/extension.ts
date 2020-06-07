@@ -11,7 +11,8 @@ import { IWTProfile, IWTInstallation } from './interfaces';
 let installation: IWTInstallation;
 
 export async function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.open', () => openWithDefaultProfile()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.open', () => open()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openExplorer', e => open(e)));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfile', () => openWithProfile()));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfileExplorer', e => openWithProfile(e)));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolder', () => openActiveFilesFolderWithDefaultProfile()));
@@ -58,8 +59,8 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
   spawn(installation.executablePath, args, { detached: true });
 }
 
-async function openWithDefaultProfile() {
-  openWindowsTerminal(await getDefaultProfile(installation));
+async function open(uri?: vscode.Uri) {
+  openWindowsTerminal(await getDefaultProfile(installation), uri);
 }
 
 async function openWithProfile(uri?: vscode.Uri) {
