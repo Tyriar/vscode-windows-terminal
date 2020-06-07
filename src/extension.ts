@@ -7,6 +7,7 @@ import { promisify } from 'util';
 import { dirname } from 'path';
 import { detectInstallation } from './installation';
 import { IWTProfile, IWTInstallation } from './interfaces';
+import { profile } from 'console';
 
 let installation: IWTInstallation;
 
@@ -65,7 +66,7 @@ async function open(uri?: vscode.Uri) {
 
 async function openWithProfile(uri?: vscode.Uri) {
   try {
-    const profile = await chooseProfile(installation);
+    const profile = await chooseProfile(installation, !!uri);
     if (!profile) {
       return;
     }
@@ -88,7 +89,7 @@ async function openActiveFilesFolderWithDefaultProfile(profile?: IWTProfile) {
 
 async function openActiveFilesFolderWithProfile() {
   try {
-    const profile = await chooseProfile(installation);
+    const profile = await chooseProfile(installation, true);
     if (!profile) {
       return;
     }
@@ -108,21 +109,28 @@ async function getDefaultProfile(installation: IWTInstallation): Promise<IWTProf
   return defaultProfile;
 }
 
-async function chooseProfile(installation: IWTInstallation): Promise<IWTProfile | undefined> {
+async function chooseProfile(installation: IWTInstallation, hasUri: boolean): Promise<IWTProfile | undefined> {
   const settings = await getSettingsContents(installation.settingsPath);
   let defaultIndex = -1;
-  const profileList = ('list' in settings.profiles ? settings.profiles.list : settings.profiles);
-  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = profileList.map((profile, i) => {
-    const isDefault = profile.guid === settings.defaultProfile;
-    if (isDefault) {
-      defaultIndex = i;
-    }
-    return {
-      label: profile.name,
-      description: (profile.commandline || profile.source || '') + (isDefault ? ' (Default)' : ''),
-      profile
-    };
-  });
+  let profileList = ('list' in settings.profiles ? settings.profiles.list : settings.profiles);
+
+  // Filter out any Cloud Shell profile when a URI is used
+  if (hasUri) {
+    profileList = profileList.filter(p => p.source !== 'Windows.Terminal.Azure');
+  }
+
+  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = profileList
+    .map((profile, i) => {
+      const isDefault = profile.guid === settings.defaultProfile;
+      if (isDefault) {
+        defaultIndex = i;
+      }
+      return {
+        label: profile.name,
+        description: (profile.commandline || profile.source || '') + (isDefault ? ' (Default)' : ''),
+        profile
+      };
+    });
   if (defaultIndex !== -1) {
     const defaultItem = quickPickItems.splice(defaultIndex, 1)[0];
     quickPickItems.unshift(defaultItem);
