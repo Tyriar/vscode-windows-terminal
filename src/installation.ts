@@ -27,24 +27,41 @@ function getChannelAppId(channel: Channel): string {
   return 'Microsoft.WindowsTerminal_8wekyb3d8bbwe';
 }
 
-export async function detectInstallation(): Promise<IWTInstallation> {
+export async function detectInstallation(): Promise<IWTInstallation | undefined> {
   const config = vscode.workspace.getConfiguration('windowsTerminal');
-  const channelConfig = config.get<Channel | 'auto'>('channel');
-  if (channelConfig === undefined) {
-    throw new Error('Could not detect installation');
-  }
+  const channelConfig = config.get<Channel | 'auto'>('channel') || 'auto';
 
   let channel: Channel;
   if (channelConfig === 'auto') {
     const pathExists = await promisify(exists)(getExecutablePath('stable'));
-    // return pathExists ? 'stable' : 'preview';
-    channel = pathExists ? 'stable' : 'preview';
+    channel = 'stable';
+    if (!pathExists) {
+      // Switch to preview only if it exists, we want the stable store page to open if not
+      const previewExists = await promisify(exists)(getExecutablePath('preview'));
+      if (previewExists) {
+        channel = 'preview';
+      }
+    }
   } else {
     channel = channelConfig;
   }
 
-  return {
+  const installation: IWTInstallation = {
     executablePath: getExecutablePath(channel),
     settingsPath: getSettingsPath(channel)
   };
+
+  const exeExists = await promisify(exists)(installation.executablePath);
+  if (!exeExists) {
+    const selection = await vscode.window.showErrorMessage('Could not detect Windows Terminal installation', 'Open Microsoft Store');
+    if (selection === 'Open Microsoft Store') {
+      const url = channel === 'stable'
+        ? 'https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701'
+        : 'https://www.microsoft.com/en-us/p/windows-terminal-preview/9n8g5rfz9xk3';
+      await vscode.env.openExternal(vscode.Uri.parse(url));
+    }
+    return undefined;
+  }
+
+  return installation;
 }

@@ -7,9 +7,8 @@ import { promisify } from 'util';
 import { dirname } from 'path';
 import { detectInstallation } from './installation';
 import { IWTProfile, IWTInstallation } from './interfaces';
-import { profile } from 'console';
 
-let installation: IWTInstallation;
+let installation: IWTInstallation | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.open', () => open()));
@@ -19,17 +18,29 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolder', () => openActiveFilesFolderWithDefaultProfile()));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolderWithProfile', e => openActiveFilesFolderWithProfile()));
 
-  installation = await detectInstallation();
+  await refreshInstallation();
   vscode.workspace.onDidChangeConfiguration(async e => {
     if (e.affectsConfiguration('windowsTerminal')) {
-      installation = await detectInstallation();
+      await refreshInstallation(true);
     }
   });
 }
 
 export function deactivate() { }
 
+async function refreshInstallation(force: boolean = false) {
+  if (installation && !force) {
+    return;
+  }
+  installation = await detectInstallation();
+}
+
 async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
+  await refreshInstallation();
+  if (!installation) {
+    return;
+  }
+
   const args = ['-p', profile.name];
 
   // If there is no URI, set it to the first workspace folder
@@ -73,10 +84,18 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
 }
 
 async function open(uri?: vscode.Uri) {
+  await refreshInstallation();
+  if (!installation) {
+    return;
+  }
   openWindowsTerminal(await getDefaultProfile(installation), uri);
 }
 
 async function openWithProfile(uri?: vscode.Uri) {
+  await refreshInstallation();
+  if (!installation) {
+    return;
+  }
   try {
     const profile = await chooseProfile(installation, !!uri);
     if (!profile) {
@@ -89,6 +108,10 @@ async function openWithProfile(uri?: vscode.Uri) {
 }
 
 async function openActiveFilesFolderWithDefaultProfile(profile?: IWTProfile) {
+  await refreshInstallation();
+  if (!installation) {
+    return;
+  }
   const uri = vscode.window.activeTextEditor?.document.uri;
   if (!uri) {
     return vscode.window.showErrorMessage(`There is no active file to open`);
@@ -100,6 +123,10 @@ async function openActiveFilesFolderWithDefaultProfile(profile?: IWTProfile) {
 }
 
 async function openActiveFilesFolderWithProfile() {
+  await refreshInstallation();
+  if (!installation) {
+    return;
+  }
   try {
     const profile = await chooseProfile(installation, true);
     if (!profile) {
