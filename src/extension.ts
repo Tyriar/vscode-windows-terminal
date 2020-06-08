@@ -7,6 +7,7 @@ import { promisify } from 'util';
 import { dirname } from 'path';
 import { detectInstallation } from './installation';
 import { IWTProfile, IWTInstallation } from './interfaces';
+import { resolveSSHHostName } from './ssh';
 
 let installation: IWTInstallation | undefined;
 
@@ -61,7 +62,8 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
         // Changing paths on Windows seems tricky
         args.push('ssh', host);
       } else {
-        args.push('ssh', '-t', host, `cd ${uri.path}; exec \\$SHELL -l`);
+        const remoteMachine = await resolveSSHHostName(host);
+        args.push('ssh', '-t', remoteMachine, `cd ${uri.path} && exec $SHELL -l`);
       }
     } else {
       let cwd = uri.fsPath;
