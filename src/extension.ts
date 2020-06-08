@@ -61,8 +61,8 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
       const remoteMachine = await resolveSSHHostName(host);
       if (isWindows) {
         // remove first /
-        const uri_windows = uri.path.substring(1, uri.path.length);
-        args.push('ssh', remoteMachine, `cd ${uri_windows} && powershell.exe`);
+        const uriWindows = uri.path.substring(1, uri.path.length);
+        args.push('ssh', remoteMachine, `powershell -NoExit -Command cd ${uriWindows}\\;${vscode.env.shell}`);
       } else {
         args.push('ssh', '-t', remoteMachine, `cd ${uri.path} && exec $SHELL -l`);
       }
