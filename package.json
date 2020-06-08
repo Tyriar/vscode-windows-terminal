@@ -2,7 +2,7 @@
   "name": "windows-terminal",
   "displayName": "Windows Terminal Integration",
   "description": "VS Code integration with Windows Terminal",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "icon": "images/icon.png",
   "author": {
     "name": "Daniel Imms"

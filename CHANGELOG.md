@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.5.1
+
+- Fix SSH connection on non-Windows https://github.com/Tyriar/vscode-windows-terminal/issues/15, via [@ricardosantos9521](https://github.com/ricardosantos9521)
+- Show a link to the Microsoft Store when installation detection fails https://github.com/Tyriar/vscode-windows-terminal/issues/16
+
 ## 0.5.0
 
 - Preliminary SSH Remote support
