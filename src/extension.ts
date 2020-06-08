@@ -57,7 +57,7 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
     if (uri.authority.startsWith('ssh-remote+')) {
       // Handle SSH remotes first
       const host = uri.authority.split('+')[1];
-      const isWindows = !!uri.path.match(/^\/[a-z]:\//);
+      const isWindows = !!uri.path.match(/^\/[a-zA-Z]:\/.*$/);
       if (isWindows) {
         // Changing paths on Windows seems tricky
         args.push('ssh', host);
