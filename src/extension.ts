@@ -60,8 +60,9 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
       const isWindows = !!uri.path.match(/^\/[a-zA-Z]:\/.*$/);
       const remoteMachine = await resolveSSHHostName(host);
       if (isWindows) {
-        // Changing paths on Windows seems tricky
-        args.push('ssh', remoteMachine);
+        // remove first /
+        const uri_windows = uri.path.substring(1, uri.path.length);
+        args.push('ssh', remoteMachine, `cd ${uri_windows} && powershell.exe`);
       } else {
         args.push('ssh', '-t', remoteMachine, `cd ${uri.path} && exec $SHELL -l`);
       }
