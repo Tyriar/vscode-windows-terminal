@@ -1,13 +1,7 @@
 import { readFile, exists } from 'fs';
 import * as vscode from 'vscode';
 import { promisify } from 'util';
-const sshConfig = require('ssh-config');
-
-interface IParam {
-  param: string;
-  value: string;
-  config: IParam[];
-}
+import * as sshConfig from 'ssh-config';
 
 export async function resolveSSHHostName(host: string): Promise<string> {
   // get path from remote-ssh-extension config file
@@ -30,7 +24,7 @@ export async function resolveSSHHostName(host: string): Promise<string> {
   }
 
   // parse content
-  const config: IParam[] = sshConfig.parse(rawString);
+  const config = sshConfig.parse(rawString);
   const settings = config.find((x) => x.param.toLowerCase() === 'host' && x.value === host);
 
   let resolvedHost = '';
