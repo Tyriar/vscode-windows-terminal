@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 
 export enum OS {
   WINDOWS,
-  UNIX,
+  LINUX,
+  MACOS,
   UNIXLIKE
 }
 
@@ -31,17 +32,27 @@ function getShell(os: OSShellKey) {
   return defaultShells[os];
 }
 
-export function shellScript(os: OS) {
+export function shellScript(os: OS): string {
   if (os === OS.WINDOWS) {
-    return `${getShell(OSShellKey.WINDOWS)}`;
+    const windowsShell = getShell(OSShellKey.WINDOWS);
+    return `if( get-command ${windowsShell} 2> \`$null ){${windowsShell}}`;
   }
 
-  if (os === OS.UNIX) {
-    return `${getShell(OSShellKey.LINUX)} || exec $SHELL`;
+  if (os === OS.LINUX) {
+    const linuxShell = getShell(OSShellKey.LINUX);
+    return `( if [[ -x $(command -v ${linuxShell}) ]]\\; then ${linuxShell}\\; else $SHELL\\; fi )`;
+  }
+
+  if (os === OS.MACOS) {
+    const osxShell = getShell(OSShellKey.MACOS);
+    return `( if [[ -x $(command -v ${osxShell}) ]]\\; then ${osxShell}\\; else $SHELL\\; fi )`;
   }
 
   if (os === OS.UNIXLIKE) {
-    return `if [[ "$(uname -s)" = "Darwin" ]]\\; then ${getShell(OSShellKey.MACOS)}\\; else ${getShell(OSShellKey.LINUX)}\\; fi || exec $SHELL`;
+    const linuxShell = shellScript(OS.LINUX);
+    const osxShell = shellScript(OS.MACOS);
+
+    return `if [[ "$(uname -s)" = "Darwin" ]]\\; then ${osxShell}\\; else ${linuxShell}\\; fi`;
   }
 
   return '';
