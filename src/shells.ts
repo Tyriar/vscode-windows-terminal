@@ -33,15 +33,15 @@ function getShell(os: OSShellKey) {
 
 export function shellScript(os: OS) {
   if (os === OS.WINDOWS) {
-    return `${getShell(OSShellKey.WINDOWS)}`;
+    return `&{${getShell(OSShellKey.WINDOWS)}} 2> $null`;
   }
 
   if (os === OS.UNIX) {
-    return `${getShell(OSShellKey.LINUX)} || exec $SHELL -l`;
+    return `(${getShell(OSShellKey.LINUX)} 2> /dev/null || exec $SHELL -l) 2> /dev/null`;
   }
 
   if (os === OS.UNIXLIKE) {
-    return `if [[ "$(uname -s)" = "Darwin" ]]\\; then ${getShell(OSShellKey.MACOS)}\\; else ${getShell(OSShellKey.LINUX)}\\; fi || exec $SHELL -l`;
+    return `( if [[ "$(uname -s)" = "Darwin" ]]\\; then ${getShell(OSShellKey.MACOS)}\\; else ${getShell(OSShellKey.LINUX)}\\; fi 2> /dev/null  || exec $SHELL -l )`;
   }
 
   return '';
