@@ -1,30 +1,39 @@
 import * as vscode from 'vscode';
 
-export enum OS {
-  WINDOWS = 1,
-  LINUX = 2
-}
+// eslint-disable-next-line @typescript-eslint/naming-convention
+type systems = 'windows' | 'linux' | 'osx' | 'linuxbase';
 
-const windowsDefaultShell = 'powershell.exe';
-const linuxDefaultShell = '/bin/bash';
+// Default shells in vscode
+const defaultShells = {
+  windows: 'powershell.exe',
+  linux: '$SHELL',
+  osx: '$SHELL'
+};
 
+function getShell(os: Exclude<systems, 'linuxbase'>) {
 
-export function getShell(os: OS) {
   const integratedShell = vscode.workspace.getConfiguration('terminal.integrated.shell');
 
-  if (os === OS.WINDOWS) {
-    const windowsShell = integratedShell?.get<string>('windows');
-    if (windowsShell) {
-      return windowsShell;
-    }
-    return windowsDefaultShell;
+  const shell = integratedShell?.get<string>(os);
+  if (shell) {
+    return shell;
   }
 
-  if (os === OS.LINUX) {
-    const linuxShell = integratedShell?.get<string>('linux');
-    if (linuxShell) {
-      return linuxShell;
-    }
-    return linuxDefaultShell;
+  return defaultShells[os];
+}
+
+export function shellScript(os: Exclude<systems, 'osx'>) {
+  if (os === 'windows') {
+    return `${getShell('windows')}`;
   }
+
+  if (os === 'linux') {
+    return `${getShell('linux')} || exec $SHELL -l`;
+  }
+
+  if (os === 'linuxbase') {
+    return `if [[ "$(uname -s)" = "Darwin" ]]\\; then ${getShell('osx')}\\; else ${getShell('linux')}\\; fi || exec $SHELL -l`;
+  }
+
+  return '';
 }

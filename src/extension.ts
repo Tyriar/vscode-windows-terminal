@@ -8,7 +8,7 @@ import { dirname } from 'path';
 import { detectInstallation } from './installation';
 import { IWTProfile, IWTInstallation } from './interfaces';
 import { resolveSSHHostName } from './ssh';
-import { getShell, OS } from './shells';
+import { shellScript } from './shells';
 
 let installation: IWTInstallation | undefined;
 
@@ -63,9 +63,9 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
       if (isWindows) {
         // remove first /
         const uriWindows = uri.path.substring(1, uri.path.length);
-        args.push('ssh', remoteMachine, `powershell -NoExit -Command cd ${uriWindows}\\;${getShell(OS.WINDOWS)}`);
+        args.push('ssh', remoteMachine, `powershell -NoExit -Command cd ${uriWindows}\\; ${shellScript('windows')}`);
       } else {
-        args.push('ssh', '-t', remoteMachine, `cd ${uri.path} && exec ${getShell(OS.LINUX)} -l`);
+        args.push('ssh', '-t', remoteMachine, `cd ${uri.path} && ${shellScript('linuxbase')}`);
       }
     } else {
       let cwd = uri.fsPath;
