@@ -37,7 +37,7 @@ export function shellScript(os: OS) {
   }
 
   if (os === OS.UNIX) {
-    return `(${getShell(OSShellKey.LINUX)} 2> /dev/null || exec $SHELL) 2> /dev/null`;
+    return `(${getShell(OSShellKey.LINUX)} 2> /dev/null || exec $SHELL)`;
   }
 
   if (os === OS.UNIXLIKE) {
