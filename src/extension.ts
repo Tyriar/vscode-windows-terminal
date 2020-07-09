@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { getSettingsContents } from './settings';
-import { spawn } from 'child_process';
+import * as path from 'path';
+import { getSettingsContents, getVscodeQuality } from './settings';
+import { exec, spawn } from 'child_process';
 import { convertWslPathToWindows } from './wsl';
-import { stat } from 'fs';
+import { runDockerCommand } from './docker';
+import { readFile, stat, appendFile } from 'fs';
 import { promisify } from 'util';
-import { dirname } from 'path';
 import { detectInstallation } from './installation';
 import { IWTProfile, IWTInstallation } from './interfaces';
 import { resolveSSHHostName } from './ssh';
@@ -67,6 +68,25 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
       } else {
         args.push('ssh', '-t', remoteMachine, `cd ${uri.path} && ${shellScript(OS.UNIXLIKE)}`);
       }
+    } else if (uri.authority.startsWith('dev-container+')) {
+      // The authority after the '+' is a hex-encoded string for the base path of the project on the host
+      const hexString = uri.authority.split('+')[1];
+      const hexValues = new Array(hexString.length / 2);
+      for (let i = 0; i < hexValues.length; i++) {
+        const current = hexString.slice(2 * i, 2 * i + 2);
+        hexValues[i] = parseInt(current, 16);
+      }
+      const hostPath = String.fromCharCode(...hexValues);
+
+      // devcontainers are labelled based on stable/insider version, so find that to add to the filter
+      const quality = await getVscodeQuality();
+      const containerID = await runDockerCommand(`ps --filter label=vsch.local.folder=${hostPath} --filter "label=vsch.quality=${quality}" --format "{{.ID}}" --no-trunc`);
+      if (containerID === '') {
+        return;
+      }
+
+      const containerFolder = path.dirname(uri.path);
+      args.push('docker', 'exec', '-it', '--workdir', containerFolder, containerID, 'bash');
     } else {
       let cwd = uri.fsPath;
       if (uri.authority) {
@@ -78,7 +98,7 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
         }
       }
       if (await isFile(cwd)) {
-        cwd = dirname(cwd);
+        cwd = path.dirname(cwd);
       }
       args.push('-d', cwd);
     }
