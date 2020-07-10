@@ -16,7 +16,7 @@ The context menu also works in [WSL remotes](https://marketplace.visualstudio.co
 
 Opening the terminal when in a [SSH remote](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) workspace will ssh into the remote in Windows Terminal.
 
-**devcontainer support**
+**Dev container support**
 
 Opening the terminal when in a [devcontainer remote](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) workspaces will `docker exec` into the remote in Windows Terminal.
 
