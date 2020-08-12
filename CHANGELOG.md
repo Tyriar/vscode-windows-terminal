@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.6.0
+
+- Fix SSH connections on Windows https://github.com/Tyriar/vscode-windows-terminal/pull/19, https://github.com/Tyriar/vscode-windows-terminal/pull/21, via [@ricardosantos9521](https://github.com/ricardosantos9521)
+- Use terminal.integrated.shell.linux/windows as shell in ssh https://github.com/Tyriar/vscode-windows-terminal/pull/22, via [@ricardosantos9521](https://github.com/ricardosantos9521)
+- Add support for devcontainers https://github.com/Tyriar/vscode-windows-terminal/pull/24, via [@stuartleeks](https://github.com/stuartleeks)
+
 ## 0.5.1
 
 - Fix SSH connection on non-Windows https://github.com/Tyriar/vscode-windows-terminal/issues/15, via [@ricardosantos9521](https://github.com/ricardosantos9521)
