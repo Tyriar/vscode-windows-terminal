@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 
 export function convertWslPathToWindows(p: string, distro: string): Promise<string> {
-  return runWslCommand(`wslpath -w ${p}`, distro);
+  return runWslCommand(`wslpath -w '${p}'`, distro);
 }
 
 function runWslCommand(command: string, distro: string): Promise<string> {
