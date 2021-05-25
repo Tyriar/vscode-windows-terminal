@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.1
+
+- Fix opening WSL paths containing spaces https://github.com/Tyriar/vscode-windows-terminal/pull/29 via [@moxwel](https://github.com/moxwel)
+
 ## 0.6.0
 
 - Fix SSH connections on Windows https://github.com/Tyriar/vscode-windows-terminal/pull/19, https://github.com/Tyriar/vscode-windows-terminal/pull/21, via [@ricardosantos9521](https://github.com/ricardosantos9521)
