@@ -39,12 +39,18 @@ async function refreshInstallation(force: boolean = false) {
 }
 
 async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
+  const config = vscode.workspace.getConfiguration('windowsTerminal');
+  const reuseWindow = config.get<boolean>('reuseExistingWindow');
+
   await refreshInstallation();
   if (!installation) {
     return;
   }
 
   const args = ['-p', profile.name];
+  if (reuseWindow) {
+    args.splice(0, 0, '-w', '0');
+  }
 
   // If there is no URI, set it to the first workspace folder
   if (!uri) {
