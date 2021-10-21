@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.7.0
+
+- Add `windowsTerminal.reuseExistingWindow` setting, defaults to true https://github.com/Tyriar/vscode-windows-terminal/pull/37 via [Joinyy](https://github.com/Joinyy)
+
 ## 0.6.1
 
 - Fix opening WSL paths containing spaces https://github.com/Tyriar/vscode-windows-terminal/pull/29 via [@moxwel](https://github.com/moxwel)
