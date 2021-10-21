@@ -55,7 +55,7 @@
         },
         "windowsTerminal.reuseExistingWindow": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Whether to reuse an existing Windows Terminal window."
         },
         "windowsTerminal.explorer.showOpen": {
