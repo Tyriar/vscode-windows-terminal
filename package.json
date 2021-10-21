@@ -53,6 +53,11 @@
             "Use the preview version of Windows Terminal"
           ]
         },
+        "windowsTerminal.reuseExistingWindow": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to reuse an existing Windows Terminal window."
+        },
         "windowsTerminal.explorer.showOpen": {
           "type": "boolean",
           "default": true,
