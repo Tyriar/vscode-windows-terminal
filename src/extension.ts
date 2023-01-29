@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getSettingsContents, getVscodeQuality } from './settings';
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { convertWslPathToWindows } from './wsl';
 import { runDockerCommand } from './docker';
-import { readFile, stat, appendFile } from 'fs';
+import { stat } from 'fs';
 import { promisify } from 'util';
 import { detectInstallation } from './installation';
 import { IWTProfile, IWTInstallation } from './interfaces';
@@ -15,11 +15,23 @@ let installation: IWTInstallation | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.open', () => open()));
-  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openExplorer', e => open(e)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openInQuakeMode', () => open(true)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openExplorer', e => open(false, e)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openExplorerInQuakeMode', e => open(true, e)));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfile', () => openWithProfile()));
-  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfileExplorer', e => openWithProfile(e)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfileInQuakeMode', () => openWithProfile(true)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfileExplorer', e => openWithProfile(false, e)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openWithProfileExplorerInQuakeMode', e => openWithProfile(true, e)));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolder', () => openActiveFilesFolderWithDefaultProfile()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolderInQuakeMode', () => openActiveFilesFolderWithDefaultProfile(true)));
   context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolderWithProfile', e => openActiveFilesFolderWithProfile()));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.openActiveFilesFolderWithProfileInQuakeMode', e => openActiveFilesFolderWithProfile(true)));
+
+  // commands for changing settings
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.showQuakeModeEntries', e => showQuakeModeEntries(true)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.hideQuakeModeEntries', e => showQuakeModeEntries(false)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.enableQuakeModeByDefault', e => enableQuakeModeByDefault(true)));
+  context.subscriptions.push(vscode.commands.registerCommand('windows-terminal.disableQuakeModeByDefault', e => enableQuakeModeByDefault(false)));
 
   await refreshInstallation();
   vscode.workspace.onDidChangeConfiguration(async e => {
@@ -38,9 +50,10 @@ async function refreshInstallation(force: boolean = false) {
   installation = await detectInstallation();
 }
 
-async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
+async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri, openInQuakeModeForce: boolean = false) {
   const config = vscode.workspace.getConfiguration('windowsTerminal');
   const reuseWindow = config.get<boolean>('reuseExistingWindow');
+  const openInQuakeModeAlways = config.get<boolean>('quakeMode.openInQuakeModeAlways');
 
   await refreshInstallation();
   if (!installation) {
@@ -48,7 +61,9 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
   }
 
   const args = ['-p', profile.name];
-  if (reuseWindow) {
+  if (openInQuakeModeAlways || openInQuakeModeForce) {
+    args.splice(0, 0, '-w', '_quake');
+  } else if (reuseWindow) {
     args.splice(0, 0, '-w', '0');
   }
 
@@ -113,15 +128,15 @@ async function openWindowsTerminal(profile: IWTProfile, uri?: vscode.Uri) {
   spawn(installation.executablePath, args, { detached: true });
 }
 
-async function open(uri?: vscode.Uri) {
+async function open(quakeMode: boolean = false, uri?: vscode.Uri) {
   await refreshInstallation();
   if (!installation) {
     return;
   }
-  openWindowsTerminal(await getDefaultProfile(installation), uri);
+  openWindowsTerminal(await getDefaultProfile(installation), uri, quakeMode);
 }
 
-async function openWithProfile(uri?: vscode.Uri) {
+async function openWithProfile(quakeMode: boolean = false, uri?: vscode.Uri) {
   await refreshInstallation();
   if (!installation) {
     return;
@@ -131,13 +146,13 @@ async function openWithProfile(uri?: vscode.Uri) {
     if (!profile) {
       return;
     }
-    await openWindowsTerminal(profile, uri);
-  } catch (ex) {
+    await openWindowsTerminal(profile, uri, quakeMode);
+  } catch (ex: any) {
     return vscode.window.showErrorMessage(`Could not launch Windows Terminal:\n\n${ex.message}`);
   }
 }
 
-async function openActiveFilesFolderWithDefaultProfile(profile?: IWTProfile) {
+async function openActiveFilesFolderWithDefaultProfile(quakeMode: boolean = false, profile?: IWTProfile) {
   await refreshInstallation();
   if (!installation) {
     return;
@@ -149,10 +164,10 @@ async function openActiveFilesFolderWithDefaultProfile(profile?: IWTProfile) {
   if (!profile) {
     profile = await getDefaultProfile(installation);
   }
-  openWindowsTerminal(profile, uri);
+  openWindowsTerminal(profile, uri, quakeMode);
 }
 
-async function openActiveFilesFolderWithProfile() {
+async function openActiveFilesFolderWithProfile(quakeMode: boolean = false) {
   await refreshInstallation();
   if (!installation) {
     return;
@@ -162,8 +177,8 @@ async function openActiveFilesFolderWithProfile() {
     if (!profile) {
       return;
     }
-    await openActiveFilesFolderWithDefaultProfile(profile);
-  } catch (ex) {
+    await openActiveFilesFolderWithDefaultProfile(quakeMode, profile);
+  } catch (ex: any) {
     return vscode.window.showErrorMessage(`Could not launch Windows Terminal:\n\n${ex.message}`);
   }
 }
@@ -188,7 +203,7 @@ async function chooseProfile(installation: IWTInstallation, hasUri: boolean): Pr
     profileList = profileList.filter(p => p.source !== 'Windows.Terminal.Azure');
   }
 
-  const quickPickItems: (vscode.QuickPickItem & { profile: IWTProfile })[] = profileList
+  const quickPickItems: Array<vscode.QuickPickItem & { profile: IWTProfile }> = profileList
     .map((profile, i) => {
       const isDefault = profile.guid === settings.defaultProfile;
       if (isDefault) {
@@ -200,6 +215,7 @@ async function chooseProfile(installation: IWTInstallation, hasUri: boolean): Pr
         profile
       };
     });
+
   if (defaultIndex !== -1) {
     const defaultItem = quickPickItems.splice(defaultIndex, 1)[0];
     quickPickItems.unshift(defaultItem);
@@ -212,4 +228,14 @@ async function chooseProfile(installation: IWTInstallation, hasUri: boolean): Pr
 async function isFile(path: string): Promise<boolean> {
   const result = await promisify(stat)(path);
   return !result.isDirectory();
+}
+
+async function showQuakeModeEntries(value: boolean) {
+  const config = vscode.workspace.getConfiguration('windowsTerminal');
+  await config.update('quakeMode.showQuakeModeEntries', value, true);
+}
+
+async function enableQuakeModeByDefault(value: boolean) {
+  const config = vscode.workspace.getConfiguration('windowsTerminal');
+  await config.update('quakeMode.openInQuakeModeAlways', value, true);
 }

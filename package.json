@@ -27,11 +27,17 @@
   ],
   "activationEvents": [
     "onCommand:windows-terminal.openActiveFilesFolder",
+    "onCommand:windows-terminal.openActiveFilesFolderInQuakeMode",
     "onCommand:windows-terminal.openActiveFilesFolderWithProfile",
+    "onCommand:windows-terminal.openActiveFilesFolderWithProfileInQuakeMode",
     "onCommand:windows-terminal.open",
+    "onCommand:windows-terminal.openInQuakeMode",
     "onCommand:windows-terminal.openExplorer",
+    "onCommand:windows-terminal.openExplorerInQuakeMode",
     "onCommand:windows-terminal.openWithProfile",
-    "onCommand:windows-terminal.openWithProfileExplorer"
+    "onCommand:windows-terminal.openWithProfileInQuakeMode",
+    "onCommand:windows-terminal.openWithProfileExplorer",
+    "onCommand:windows-terminal.openWithProfileExplorerOpenInQuakeMode"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -67,6 +73,16 @@
           "type": "boolean",
           "default": true,
           "description": "Whether to show the \"Open in Windows Terminal (Profile)\" context menu item in the explorer."
+        },
+        "windowsTerminal.quakeMode.openInQuakeModeAlways": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to open Windows Terminal in quake mode always"
+        },
+        "windowsTerminal.quakeMode.showQuakeModeEntries": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to show the \"Open in Windows Terminal With Quake Mode\" context menu item in the explorer. This will automatically hide if the `terminal.external.windowsExec` setting is set to `'external'`."
         }
       }
     },
@@ -77,8 +93,18 @@
         "category": "Windows Terminal"
       },
       {
+        "command": "windows-terminal.openActiveFilesFolderInQuakeMode",
+        "title": "Open Active File's Folder in Quake Mode",
+        "category": "Windows Terminal"
+      },
+      {
         "command": "windows-terminal.openActiveFilesFolderWithProfile",
         "title": "Open Active File's Folder With Profile",
+        "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.openActiveFilesFolderWithProfileInQuakeMode",
+        "title": "Open Active File's Folder With Profile in Quake Mode",
         "category": "Windows Terminal"
       },
       {
@@ -87,8 +113,18 @@
         "category": "Windows Terminal"
       },
       {
+        "command": "windows-terminal.openInQuakeMode",
+        "title": "Open in Quake Mode",
+        "category": "Windows Terminal"
+      },
+      {
         "command": "windows-terminal.openExplorer",
         "title": "Open in Windows Terminal",
+        "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.openExplorerInQuakeMode",
+        "title": "Open in Windows Terminal in Quake Mode",
         "category": "Windows Terminal"
       },
       {
@@ -97,10 +133,46 @@
         "category": "Windows Terminal"
       },
       {
+        "command": "windows-terminal.openWithProfileInQuakeMode",
+        "title": "Open With Profile",
+        "category": "Windows Terminal"
+      },
+      {
         "command": "windows-terminal.openWithProfileExplorer",
         "title": "Open in Windows Terminal (Profile)",
         "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.openWithProfileExplorerInQuakeMode",
+        "title": "Open in Windows Terminal (Profile)",
+        "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.openWithProfileExplorerInQuakeMode",
+        "title": "Open in Windows Terminal (Profile) in Quake Mode",
+        "category": "Windows Terminal"
+      },
+      {
+        "command": "windows-terminal.showQuakeModeEntries",
+        "title": "Show entries to Open in Windows Terminal in Quake Mode",
+        "category": "Windows Terminal Settings"
+      },
+      {
+        "command": "windows-terminal.hideQuakeModeEntries",
+        "title": "Hide entries to Open in Windows Terminal in Quake Mode",
+        "category": "Windows Terminal Settings"
+      },
+      {
+        "command": "windows-terminal.enableQuakeModeByDefault",
+        "title": "Open Windows Terminal in Quake Mode always",
+        "category": "Windows Terminal Settings"
+      },
+      {
+        "command": "windows-terminal.disableQuakeModeByDefault",
+        "title": "Disable open Windows Terminal in Quake Mode always",
+        "category": "Windows Terminal Settings"
       }
+
     ],
     "menus": {
       "commandPalette": [
@@ -109,15 +181,31 @@
           "when": "isWindows"
         },
         {
+          "command": "windows-terminal.openActiveFilesFolderInQuakeMode",
+          "when": "isWindows && config.windowsTerminal.quakeMode.showQuakeModeEntries"
+        },
+        {
           "command": "windows-terminal.openActiveFilesFolderWithProfile",
           "when": "isWindows"
+        },
+        {
+          "command": "windows-terminal.openActiveFilesFolderWithProfileInQuakeMode",
+          "when": "isWindows && config.windowsTerminal.quakeMode.showQuakeModeEntries"
         },
         {
           "command": "windows-terminal.open",
           "when": "isWindows"
         },
         {
+          "command": "windows-terminal.openInQuakeMode",
+          "when": "isWindows && config.windowsTerminal.quakeMode.showQuakeModeEntries"
+        },
+        {
           "command": "windows-terminal.openExplorer",
+          "when": "false"
+        },
+        {
+          "command": "windows-terminal.openExplorerInQuakeMode",
           "when": "false"
         },
         {
@@ -125,8 +213,32 @@
           "when": "isWindows"
         },
         {
+          "command": "windows-terminal.openWithProfileInQuakeMode",
+          "when": "isWindows && config.windowsTerminal.quakeMode.showQuakeModeEntries"
+        },
+        {
           "command": "windows-terminal.openWithProfileExplorer",
           "when": "false"
+        },
+        {
+          "command": "windows-terminal.openWithProfileExplorerInQuakeMode",
+          "when": "false"
+        },
+        {
+          "command": "windows-terminal.showQuakeModeEntries",
+          "when": "isWindows && !config.windowsTerminal.quakeMode.showQuakeModeEntries"
+        },
+        {
+          "command": "windows-terminal.hideQuakeModeEntries",
+          "when": "isWindows && config.windowsTerminal.quakeMode.showQuakeModeEntries"
+        },
+        {
+          "command": "windows-terminal.enableQuakeModeByDefault",
+          "when": "isWindows && !config.windowsTerminal.quakeMode.openInQuakeModeAlways"
+        },
+        {
+          "command": "windows-terminal.disableQuakeModeByDefault",
+          "when": "isWindows && config.windowsTerminal.quakeMode.openInQuakeModeAlways"
         }
       ],
       "explorer/context": [
@@ -136,9 +248,19 @@
           "when": "isWindows && config.windowsTerminal.explorer.showOpen && config.terminal.explorerKind == 'integrated'"
         },
         {
-          "command": "windows-terminal.openWithProfileExplorer",
+          "command": "windows-terminal.openExplorerInQuakeMode",
           "group": "navigation@32",
+          "when": "isWindows && config.windowsTerminal.explorer.showOpen && config.windowsTerminal.quakeMode.showQuakeModeEntries && config.terminal.explorerKind == 'integrated'"
+        },
+        {
+          "command": "windows-terminal.openWithProfileExplorer",
+          "group": "navigation@33",
           "when": "isWindows && config.windowsTerminal.explorer.showOpenWithProfile"
+        },
+        {
+          "command": "windows-terminal.openWithProfileExplorerInQuakeMode",
+          "group": "navigation@34",
+          "when": "isWindows && config.windowsTerminal.explorer.showOpenWithProfile && config.windowsTerminal.quakeMode.showQuakeModeEntries"
         }
       ]
     }
@@ -152,20 +274,20 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^13.11.0",
-    "@types/vscode": "^1.45.0",
-    "@typescript-eslint/eslint-plugin": "^2.26.0",
-    "@typescript-eslint/parser": "^2.26.0",
-    "eslint": "^6.8.0",
-    "glob": "^7.1.6",
-    "mocha": "^7.1.1",
-    "typescript": "^3.8.3",
-    "vscode-test": "^1.3.0"
+    "@types/glob": "8.0.1",
+    "@types/mocha": "10.0.1",
+    "@types/node": "18.11.18",
+    "@types/vscode": "1.74.0",
+    "@typescript-eslint/eslint-plugin": "5.49.0",
+    "@typescript-eslint/parser": "5.49.0",
+    "eslint": "8.32.0",
+    "glob": "8.1.0",
+    "mocha": "10.2.0",
+    "typescript": "4.9.4",
+    "vscode-test": "1.6.1"
   },
   "dependencies": {
-    "jsonc-parser": "^2.2.1",
-    "ssh-config": "^4.0.2"
+    "jsonc-parser": "3.2.0",
+    "ssh-config": "4.2.0"
   }
 }
